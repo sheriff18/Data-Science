@@ -1,0 +1,34 @@
+FILENAME hw9dat URL "http://www.stat.wmich.edu/naranjo/stat6620/senic_data.txt";
+DATA one;
+INFILE hw9dat;
+INPUT hospital stay age infect culture xray beds school region census
+nurses services;
+RUN;
+
+DATA two;
+SET one;
+IF school=1 THEN affiln=0;
+ELSE IF school=2 THEN affiln=1;
+ELSE affiln=.;
+ratio=beds/nurses;
+affbeds = affiln*beds;
+census2=log(census);
+RUN;
+PROC PRINT DATA=two (obs=20);
+VAR beds nurses school affiln ratio census census2;
+RUN;
+QUIT;
+
+PROC REG DATA=two;
+   MODEL nurses = beds;
+ 
+PROC REG;
+MODEL nurses = beds affiln affbeds;
+TEST affiln=0, affbeds=0;
+
+PROC REG;
+MODEL nurses = bed;  /* REDUCED MODEL*/
+MODEL nurses = beds affiln affbeds;  /* FULL MODEL*/
+RUN;
+RUN
+ 
